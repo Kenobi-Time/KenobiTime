@@ -21,13 +21,13 @@ class Duration
         unless nanoAdjustment?
             return @create(seconds, 0)
 
-        secs = Math.floor MathUtils.addExact(seconds, MathUtils.floorDiv(nanoAdjustment, NANOS_PER_SECOND))
-        nos = Math.floor MathUtils.floorMod(nanoAdjustment, NANOS_PER_SECOND)
+        secs = parseInt MathUtils.addExact(seconds, MathUtils.floorDiv(nanoAdjustment, NANOS_PER_SECOND))
+        nos = parseInt MathUtils.floorMod(nanoAdjustment, NANOS_PER_SECOND)
         return @create(secs, nos)
 
     @ofNanos = (nanos) ->
-        secs = Math.floor nanos / NANOS_PER_SECOND
-        nos = Math.floor nanos % NANOS_PER_SECOND
+        secs = parseInt nanos / NANOS_PER_SECOND
+        nos = parseInt nanos % NANOS_PER_SECOND
         if nos < 0
             nos += NANOS_PER_SECOND
             secs--
@@ -42,9 +42,10 @@ class Duration
         if this is @ZERO
             return "PT0S"
         
-        hours = Math.floor @seconds / SECONDS_PER_HOUR
-        minutes = Math.floor (@seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE
-        secs = Math.floor @seconds % SECONDS_PER_MINUTE
+        hours = parseInt @seconds / SECONDS_PER_HOUR
+        minutes = parseInt (@seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE
+        secs = parseInt @seconds % SECONDS_PER_MINUTE
+
         buf = new StringBuilder(24)
         buf.append("PT")
         if hours isnt 0
@@ -73,7 +74,7 @@ class Duration
             
             while buf.charAt(buf.length() - 1) is '0'
                 buf.setLength(buf.length() - 1)
-            
+
             buf.setCharAt(pos, '.')
         
         buf.append('S')
