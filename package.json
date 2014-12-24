@@ -1,0 +1,33 @@
+{
+  "name": "KenobiTime",
+  "version": "0.0.1",
+  "description": "JavaScript port of Joda Time/JDK 8 Date API ",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha --compilers coffee:coffee-script/register"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kenobi-Time/KenobiTime.git"
+  },
+  "keywords": [
+    "date",
+    "time",
+    "local",
+    "timezone"
+  ],
+  "author": "Anton Wilhelm",
+  "license": "Apache2",
+  "bugs": {
+    "url": "https://github.com/Kenobi-Time/KenobiTime/issues"
+  },
+  "homepage": "https://github.com/Kenobi-Time/KenobiTime",
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "coffee-script": "^1.8.0",
+    "mocha": "^2.0.1"
+  }
+}
