@@ -11,7 +11,7 @@ class StringBuilder
 
     append: (chunk) ->
         @buffer += chunk
-        @size += chunk.length
+        @size += (''+chunk).length
         return this
 
     toString: ->
@@ -21,14 +21,19 @@ class StringBuilder
         return @size
 
     charAt: (position) ->
-        @buffer[position]
+        return @buffer[position]
 
     setCharAt: (position, char) ->
-        @buffer[position] = char
+        if position < 0 or position >= @size
+            throw new Error "cannot content at position #{position} with a size of #{@size}"
+        str = @buffer.split ''
+        str[position] = char
+        @buffer = str.join ''
         return
 
     setLength: (length) ->
-        @buffer.substr 0, length
+        @buffer = @buffer.substr 0, length
+        @size = @buffer.length
         return
 
 module.exports = StringBuilder
