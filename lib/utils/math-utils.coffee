@@ -5,6 +5,15 @@ MIN_SAFE_INTEGER = -MAX_SAFE_INTEGER
 
 int = (real) ->
     return real - (real % 1)
+
+compare = (x, y) ->
+    if x < y
+        return -1
+    else if x > y
+        return 1
+    else
+        return 0
+
 checkSafeInt = (value) ->
     if value > MAX_SAFE_INTEGER
         throw new Error 'arithmetic overflow'

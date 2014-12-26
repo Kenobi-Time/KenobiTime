@@ -23,5 +23,6 @@ class ChronoUnit
     @ERAS = Duration.ofSeconds(YEAR * 1000000000)
     @FOREVER = Duration.ofSeconds(Number.MAX_VALUE, 999999999)
 
+    @UNITS = Object.keys this
 
 module.exports = ChronoUnit
