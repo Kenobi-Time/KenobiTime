@@ -37,7 +37,7 @@ class Duration
     constructor: (@seconds, @nanos) ->
 
     isZero: ->
-        return (@seconds | nanos) is 0
+        return (@seconds | @nanos) is 0
 
     toString: ->
         if this is @ZERO
