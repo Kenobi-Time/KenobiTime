@@ -1,4 +1,5 @@
 MathUtils = require '../utils/math-utils'
+int = MathUtils.int
 StringBuilder = require '../utils/string-builder'
 
 LocalTime = require './local-time'
@@ -21,13 +22,13 @@ class Duration
         unless nanoAdjustment?
             return @create(seconds, 0)
 
-        secs = parseInt MathUtils.addExact(seconds, MathUtils.floorDiv(nanoAdjustment, NANOS_PER_SECOND))
-        nos = parseInt MathUtils.floorMod(nanoAdjustment, NANOS_PER_SECOND)
+        secs = MathUtils.addExact(seconds, MathUtils.floorDiv(nanoAdjustment, NANOS_PER_SECOND))
+        nos = int MathUtils.floorMod(nanoAdjustment, NANOS_PER_SECOND)
         return @create(secs, nos)
 
     @ofNanos = (nanos) ->
-        secs = parseInt nanos / NANOS_PER_SECOND
-        nos = parseInt nanos % NANOS_PER_SECOND
+        secs = int nanos / NANOS_PER_SECOND
+        nos = int nanos % NANOS_PER_SECOND
         if nos < 0
             nos += NANOS_PER_SECOND
             secs--

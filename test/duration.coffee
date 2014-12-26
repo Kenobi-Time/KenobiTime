@@ -5,6 +5,7 @@ Duration = require '../lib/time/duration'
 MathUtils = require '../lib/utils/math-utils'
 MAX_SAFE_INTEGER = MathUtils.MAX_SAFE_INTEGER
 MIN_SAFE_INTEGER = MathUtils.MIN_SAFE_INTEGER
+int = MathUtils.int
 Long = 
     MAX_VALUE: MAX_SAFE_INTEGER
     MIN_VALUE: MIN_SAFE_INTEGER
