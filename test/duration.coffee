@@ -2,6 +2,9 @@ chai = require 'chai'
 expect = chai.expect
 
 Duration = require '../lib/time/duration'
+MathUtils = require '../lib/utils/math-utils'
+MAX_SAFE_INTEGER = MathUtils.MAX_SAFE_INTEGER
+MIN_SAFE_INTEGER = MathUtils.MIN_SAFE_INTEGER
 
 describe 'duration', ->
 
@@ -40,11 +43,9 @@ describe 'duration', ->
             [-1, 0, "PT-1S"]
             [-1, 1000, "PT-0.999999S"]
             [-1, 900000000, "PT-0.1S"]
-            # {Long.MAX_VALUE, 0, "PT" + (Long.MAX_VALUE / 3600) + "H" +
-            #         ((Long.MAX_VALUE % 3600) / 60) + "M" + (Long.MAX_VALUE % 60) + "S"},
-            # {Long.MIN_VALUE, 0, "PT" + (Long.MIN_VALUE / 3600) + "H" +
-            #         ((Long.MIN_VALUE % 3600) / 60) + "M" + (Long.MIN_VALUE % 60) + "S"}
+            [MathUtils.MAX_SAFE_INTEGER, 0, "PT" + parseInt(MathUtils.MAX_SAFE_INTEGER / 3600) + "H" + parseInt((MathUtils.MAX_SAFE_INTEGER % 3600) / 60) + "M" + parseInt(MathUtils.MAX_SAFE_INTEGER % 60) + "S"]
+            [MathUtils.MIN_SAFE_INTEGER, 0, "PT" + parseInt(MathUtils.MIN_SAFE_INTEGER / 3600) + "H" + parseInt((MathUtils.MIN_SAFE_INTEGER % 3600) / 60) + "M" + parseInt(MathUtils.MIN_SAFE_INTEGER % 60) + "S"]
         ]
-        for [seconds, nanos, expected], index in toStringTuples
+        for [seconds, nanos, expected] in toStringTuples
             result = Duration.create(seconds, nanos).toString()
-            expect(result).to.equal expected
+            expect(result).to.equal expected, expected

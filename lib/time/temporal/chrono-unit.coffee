@@ -1,11 +1,8 @@
 Duration = require '../duration'
+MathUtils = require '../../utils/math-utils'
 
 DAY = 60 * 60 * 24
 YEAR = 365.2425 * DAY
-
-# this has the same value Number.MAX_SAFE_INTEGER
-# see https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
-MAX_VALUE = Math.pow(2, 53) - 1
 
 class ChronoUnit
 
@@ -24,6 +21,7 @@ class ChronoUnit
     @CENTURIES = Duration.ofSeconds(YEAR * 100)
     @MILLENNIA = Duration.ofSeconds(YEAR * 1000)
     @ERAS = Duration.ofSeconds(YEAR * 1000000000)
-    @FOREVER = Duration.ofSeconds(MAX_VALUE, 999999999))
+    @FOREVER = Duration.ofSeconds(Number.MAX_VALUE, 999999999)
+
 
 module.exports = ChronoUnit

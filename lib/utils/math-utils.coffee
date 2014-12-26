@@ -1,3 +1,7 @@
+# this has the same value Number.MAX_SAFE_INTEGER
+# see https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
+MAX_SAFE_INTEGER = Math.pow(2, 53) - 1
+MIN_SAFE_INTEGER = -MAX_SAFE_INTEGER
 addExact = (x, y) ->
     r = parseInt  x + y
     # HD 2-12 Overflow iff both arguments have the opposite sign of the result
@@ -29,6 +33,8 @@ multiplyExact = (x, y) ->
         return r
 
 module.exports = {
+    MAX_SAFE_INTEGER
+    MIN_SAFE_INTEGER
     addExact
     floorDiv
     floorMod
