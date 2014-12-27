@@ -28,7 +28,30 @@ describe 'duration', ->
             expect(t.nanos).to.equal 0
             i++
 
-    it.skip 'factory_seconds_long_long', ->
+    it 'factory_seconds_long_long', ->
+        i = -2
+        while i <= 2
+            j = 0
+            while j < 10
+                t = Duration.ofSeconds(i, j);
+                assertEquals(t.getSeconds(), i);
+                assertEquals(t.getNano(), j);
+                j++
+
+            j = -10
+            while j < 0
+                t = Duration.ofSeconds(i, j);
+                assertEquals(t.getSeconds(), i - 1);
+                assertEquals(t.getNano(), j + 1000000000);
+                j++
+
+            j = 999999990
+            while j < 1000000000
+                t = Duration.ofSeconds(i, j);
+                assertEquals(t.getSeconds(), i);
+                assertEquals(t.getNano(), j);
+                j++
+            i++
 
     it 'factory_seconds_long_long_nanosNegativeAdjusted', ->
         test = Duration.ofSeconds(2, -1)
