@@ -44,6 +44,7 @@ multiplyExact = (x, y) ->
 module.exports = {
     MAX_SAFE_INTEGER
     MIN_SAFE_INTEGER
+    checkSafeInt
     int
     addExact
     floorDiv

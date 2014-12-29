@@ -483,6 +483,224 @@ describe 'duration', ->
                 console.log "(#{seconds}, #{nanos}) * #{multiplicand}"
                 assertEquals(t.getSeconds(), expectedSeconds, "(#{seconds}, #{nanos}) * #{multiplicand}")
                 assertEquals(t.getNano(), expectedNanos)
+
+    describe 'parse', ->
+        parseSuccess = [
+            ["PT0S", 0, 0]
+            ["PT1S", 1, 0]
+            ["PT12S", 12, 0]
+            ["PT123456789S", 123456789, 0]
+            ["PT" + Long.MAX_VALUE + "S", Long.MAX_VALUE, 0]
+
+            ["PT+1S", 1, 0]
+            ["PT+12S", 12, 0]
+            ["PT+123456789S", 123456789, 0]
+            ["PT+" + Long.MAX_VALUE + "S", Long.MAX_VALUE, 0]
+
+            ["PT-1S", -1, 0]
+            ["PT-12S", -12, 0]
+            ["PT-123456789S", -123456789, 0]
+            ["PT" + Long.MIN_VALUE + "S", Long.MIN_VALUE, 0]
+
+            ["PT1.1S", 1, 100000000]
+            ["PT1.12S", 1, 120000000]
+            ["PT1.123S", 1, 123000000]
+            ["PT1.1234S", 1, 123400000]
+            ["PT1.12345S", 1, 123450000]
+            ["PT1.123456S", 1, 123456000]
+            ["PT1.1234567S", 1, 123456700]
+            ["PT1.12345678S", 1, 123456780]
+            ["PT1.123456789S", 1, 123456789]
+
+            ["PT-1.1S", -2, 1000000000 - 100000000]
+            ["PT-1.12S", -2, 1000000000 - 120000000]
+            ["PT-1.123S", -2, 1000000000 - 123000000]
+            ["PT-1.1234S", -2, 1000000000 - 123400000]
+            ["PT-1.12345S", -2, 1000000000 - 123450000]
+            ["PT-1.123456S", -2, 1000000000 - 123456000]
+            ["PT-1.1234567S", -2, 1000000000 - 123456700]
+            ["PT-1.12345678S", -2, 1000000000 - 123456780]
+            ["PT-1.123456789S", -2, 1000000000 - 123456789]
+
+            ["PT" + Long.MAX_VALUE + ".123456789S", Long.MAX_VALUE, 123456789]
+            ["PT" + Long.MIN_VALUE + ".000000000S", Long.MIN_VALUE, 0]
+
+            ["PT01S", 1, 0]
+            ["PT001S", 1, 0]
+            ["PT000S", 0, 0]
+            ["PT+01S", 1, 0]
+            ["PT-01S", -1, 0]
+
+            ["PT1.S", 1, 0]
+            ["PT+1.S", 1, 0]
+            ["PT-1.S", -1, 0]
+
+            ["P0D", 0, 0]
+            ["P0DT0H", 0, 0]
+            ["P0DT0M", 0, 0]
+            ["P0DT0S", 0, 0]
+            ["P0DT0H0S", 0, 0]
+            ["P0DT0M0S", 0, 0]
+            ["P0DT0H0M0S", 0, 0]
+
+            ["P1D", 86400, 0]
+            ["P1DT0H", 86400, 0]
+            ["P1DT0M", 86400, 0]
+            ["P1DT0S", 86400, 0]
+            ["P1DT0H0S", 86400, 0]
+            ["P1DT0M0S", 86400, 0]
+            ["P1DT0H0M0S", 86400, 0]
+
+            ["P3D", 86400 * 3, 0]
+            ["P3DT2H", 86400 * 3 + 3600 * 2, 0]
+            ["P3DT2M", 86400 * 3 + 60 * 2, 0]
+            ["P3DT2S", 86400 * 3 + 2, 0]
+            ["P3DT2H1S", 86400 * 3 + 3600 * 2 + 1, 0]
+            ["P3DT2M1S", 86400 * 3 + 60 * 2 + 1, 0]
+            ["P3DT2H1M1S", 86400 * 3 + 3600 * 2 + 60 + 1, 0]
+
+            ["P-3D", -86400 * 3, 0]
+            ["P-3DT2H", -86400 * 3 + 3600 * 2, 0]
+            ["P-3DT2M", -86400 * 3 + 60 * 2, 0]
+            ["P-3DT2S", -86400 * 3 + 2, 0]
+            ["P-3DT2H1S", -86400 * 3 + 3600 * 2 + 1, 0]
+            ["P-3DT2M1S", -86400 * 3 + 60 * 2 + 1, 0]
+            ["P-3DT2H1M1S", -86400 * 3 + 3600 * 2 + 60 + 1, 0]
+
+            ["P-3DT-2H", -86400 * 3 - 3600 * 2, 0]
+            ["P-3DT-2M", -86400 * 3 - 60 * 2, 0]
+            ["P-3DT-2S", -86400 * 3 - 2, 0]
+            ["P-3DT-2H1S", -86400 * 3 - 3600 * 2 + 1, 0]
+            ["P-3DT-2M1S", -86400 * 3 - 60 * 2 + 1, 0]
+            ["P-3DT-2H1M1S", -86400 * 3 - 3600 * 2 + 60 + 1, 0]
+
+            ["PT0H", 0, 0]
+            ["PT0H0M", 0, 0]
+            ["PT0H0S", 0, 0]
+            ["PT0H0M0S", 0, 0]
+
+            ["PT1H", 3600, 0]
+            ["PT3H", 3600 * 3, 0]
+            ["PT-1H", -3600, 0]
+            ["PT-3H", -3600 * 3, 0]
+
+            ["PT2H5M", 3600 * 2 + 60 * 5, 0]
+            ["PT2H5S", 3600 * 2 + 5, 0]
+            ["PT2H5M8S", 3600 * 2 + 60 * 5 + 8, 0]
+            ["PT-2H5M", -3600 * 2 + 60 * 5, 0]
+            ["PT-2H5S", -3600 * 2 + 5, 0]
+            ["PT-2H5M8S", -3600 * 2 + 60 * 5 + 8, 0]
+            ["PT-2H-5M", -3600 * 2 - 60 * 5, 0]
+            ["PT-2H-5S", -3600 * 2 - 5, 0]
+            ["PT-2H-5M8S", -3600 * 2 - 60 * 5 + 8, 0]
+            ["PT-2H-5M-8S", -3600 * 2 - 60 * 5 - 8, 0]
+
+            ["PT0M", 0, 0]
+            ["PT1M", 60, 0]
+            ["PT3M", 60 * 3, 0]
+            ["PT-1M", -60, 0]
+            ["PT-3M", -60 * 3, 0]
+            ["P0DT3M", 60 * 3, 0]
+            ["P0DT-3M", -60 * 3, 0]
+
+            # allow leading and trailing whitespaces 
+            [" PT0S", 0, 0]
+            ["PT0S ", 0, 0]
+        ]
+        parseFailure = [
+            [""]
+            ["ABCDEF"]
+
+            ["PTS"]
+            ["AT0S"]
+            ["PA0S"]
+            ["PT0A"]
+
+            ["P0Y"]
+            ["P1Y"]
+            ["P-2Y"]
+            ["P0M"]
+            ["P1M"]
+            ["P-2M"]
+            ["P3Y2D"]
+            ["P3M2D"]
+            ["P3W"]
+            ["P-3W"]
+            ["P2YT30S"]
+            ["P2MT30S"]
+
+            ["P1DT"]
+
+            ["PT+S"]
+            ["PT-S"]
+            ["PT.S"]
+            ["PTAS"]
+
+            ["PT-.S"]
+            ["PT+.S"]
+
+            ["PT1ABC2S"]
+            ["PT1.1ABC2S"]
+
+            ["PT123456789123456789123456789S"]
+            ["PT0.1234567891S"]
+
+            ["PT2.-3"]
+            ["PT-2.-3"]
+            ["PT2.+3"]
+            ["PT-2.+3"]
+        ]
+
+        it 'factory_parse', ->
+            for [text, expectedSeconds, expectedNanoOfSecond] in parseSuccess
+                test = Duration.parse(text)
+                assertEquals(test.getSeconds(), expectedSeconds, text)
+                assertEquals(test.getNano(), expectedNanoOfSecond, text)
+
+        it 'factory_parse_plus', ->
+            for [text, expectedSeconds, expectedNanoOfSecond] in parseSuccess
+                test = Duration.parse("+" + text)
+                assertEquals(test.getSeconds(), expectedSeconds, text)
+                assertEquals(test.getNano(), expectedNanoOfSecond, text)
+
+        it 'factory_parseFailures', ->
+            for text in parseFailure
+                expect( ->
+                    Duration.parse(text)
+                ).to.throw(Error)
+
+        # how this could test anything? if the parseFailure contains already only failures
+        # it 'factory_parseFailures_comma', ->
+        #     text = text.replace('.', ',')
+        #     Duration.parse(text)
+
+        it 'factory_parse_tooBig', ->
+            expect( ->
+                Duration.parse("PT" + Long.MAX_VALUE + "1S")
+            ).to.throw 'Text cannot be parsed to a Duration: seconds from PT'+Long.MAX_VALUE+'1S - arithmetic overflow'
+            
+
+        it 'factory_parse_tooBig_decimal', ->
+            expect( ->
+                Duration.parse("PT" + Long.MAX_VALUE + "1.1S")
+            ).to.throw 'Text cannot be parsed to a Duration: seconds from PT'+Long.MAX_VALUE+'1.1S - arithmetic overflow'
+
+        it 'factory_parse_tooSmall', ->
+            expect( ->
+                Duration.parse("PT" + Long.MIN_VALUE + "1S")
+            ).to.throw 'Text cannot be parsed to a Duration: seconds from PT'+Long.MIN_VALUE+'1S - arithmetic underflow'
+
+        it 'factory_parse_tooSmall_decimal', ->
+            expect( ->
+                Duration.parse("PT" + Long.MIN_VALUE + ".1S")
+            ).to.throw 'Text cannot be parsed to a Duration: overflow: PT'+Long.MIN_VALUE+'.1S - arithmetic underflow'
+
+        it 'factory_parse_nullText', ->
+            expect( ->
+                Duration.parse(null)
+            ).to.throw 'Text cannot be parsed to a Duration: null'
+
+
     it 'toString', ->
         toStringTuples = [
             [0, 0, "PT0S"]
