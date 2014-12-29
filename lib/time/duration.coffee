@@ -59,7 +59,7 @@ class Duration
             secs--
         return @create(secs, nos)
 
-    @getUnits: ->
+    @getUnits = ->
         return ['SECONDS', 'NANOS']
 
     constructor: (@seconds, @nanos) ->
@@ -107,6 +107,29 @@ class Duration
         
     negated: ->
         return multipliedBy(-1)
+
+    plus: (secondsToAdd, nanosToAdd) ->
+        if secondsToAdd instanceof Duration
+            duration = secondsToAdd
+            return plus(duration.seconds, duration.nanos)
+
+        if (secondsToAdd | nanosToAdd) is 0
+            return this
+
+        epochSec = MathUtils.addExact(@seconds, secondsToAdd)
+        epochSec = MathUtils.addExact(epochSec, nanosToAdd / NANOS_PER_SECOND)
+        nanosToAdd = nanosToAdd % NANOS_PER_SECOND
+        nanoAdjustment = @nanos + nanosToAdd #safe int+NANOS_PER_SECOND
+        return Duration.ofSeconds(epochSec, nanoAdjustment)
+
+    plusSeconds: (secondsToAdd) ->
+        return @plus(secondsToAdd, 0)
+
+    plusMillis: (millisToAdd) ->
+        return @plus(millisToAdd / 1000, (millisToAdd % 1000) * 1000000)
+
+    plusNanos: (nanosToAdd) ->
+        return @plus(0, nanosToAdd)
 
     toDays: ->
         return @seconds / SECONDS_PER_DAY
