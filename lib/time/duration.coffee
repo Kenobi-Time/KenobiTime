@@ -1,3 +1,4 @@
+Big = require 'big.js'
 MathUtils = require '../utils/math-utils'
 int = MathUtils.int
 StringBuilder = require '../utils/string-builder'
@@ -16,6 +17,12 @@ class Duration
     @create = (seconds, nanoAdjustment) ->
         if (seconds | nanoAdjustment) is 0
             return @ZERO
+
+        if seconds instanceof Big
+            nanos = int seconds.mod(1).times(NANOS_PER_SECOND).toFixed(0)
+            secs = int seconds.toFixed(0)
+            MathUtils.checkSafeInt secs
+            return @ofSeconds(secs, nanos)
 
         return new Duration(seconds, nanoAdjustment)
 
@@ -59,6 +66,7 @@ class Duration
 
     getSeconds: ->
         return @seconds
+
     getNano: ->
         return @nanos
 
@@ -73,6 +81,32 @@ class Duration
         if cmp isnt 0
             return cmp
         return nanos - otherDuration.nanos
+
+    _toSeconds: ->
+        if @seconds < 0
+            @nanos *= -1
+        return new Big(@seconds).plus(@nanos / (NANOS_PER_SECOND * 10))
+
+    dividedBy: (divisor) ->
+        if divisor is 0
+            throw new Error 'Cannot divide by zero'
+        
+        if divisor is 1
+            return this
+        
+        return Duration.createcreate(@_toSeconds().div(divisor, RoundingMode.DOWN))
+
+    multipliedBy: (multiplicand) ->
+        if multiplicand is 0
+            return Duration.ZERO
+        
+        if multiplicand is 1
+            return this
+
+        return Duration.create(@_toSeconds().times(multiplicand))
+        
+    negated: ->
+        return multipliedBy(-1)
 
     toDays: ->
         return @seconds / SECONDS_PER_DAY
